@@ -1,0 +1,16 @@
+### 유저 회원가입
+POST http://localhost:8080/user/join
+Content-Type: application/json
+
+{
+  "id": "newUser1",
+  "password": "helloworld"
+}
+
+### ERROR 필수 필드 누락
+POST http://localhost:8080/user/join
+Content-Type: application/json
+
+{
+  "id": "newUser1"
+}
