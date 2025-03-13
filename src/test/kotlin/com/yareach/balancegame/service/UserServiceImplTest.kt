@@ -5,37 +5,31 @@ import com.yareach.balancegame.entity.User
 import com.yareach.balancegame.exception.AppException
 import com.yareach.balancegame.exception.ErrorCode
 import com.yareach.balancegame.repository.UserRepository
-import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.Spy
-import org.mockito.ArgumentMatchers.*
-import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.beans.factory.annotation.Autowired
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @SpringBootTest
-@Transactional
-@ActiveProfiles("test")
-@ExtendWith(MockitoExtension::class)
-class UserServiceImplTest {
-    lateinit var userService: UserServiceImpl
+class UserServiceImplTest{
+
+    private lateinit var userService: UserServiceImpl
 
     @Mock
     private lateinit var userRepository: UserRepository
 
-    @Autowired
+    @Spy
     private lateinit var bCryptPasswordEncoder: BCryptPasswordEncoder
+
+    val testId = "test user id"
+    val testPassword = "test password"
 
     @BeforeEach
     fun setUp() {
@@ -43,43 +37,37 @@ class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("새로운 유저 가입 테스트")
-    fun joinSuccess() {
-        val newUserId = "newUser"
-        val newUserPassword = "newPassword"
-        val encodedPassword = bCryptPasswordEncoder.encode(newUserPassword)
-        val time = LocalDateTime.now()
+    @DisplayName("새로운 유저가 추가 됨")
+    fun addUser() {
+        val testStartTime = LocalDateTime.now()
+        val argumentCaptor = ArgumentCaptor.forClass(User::class.java)
 
-        Mockito.`when`(userRepository.existsById(newUserId))
+        Mockito.`when`(userRepository.existsById(testId))
             .thenReturn(false)
-        Mockito.`when`(userRepository.save(notNull()))
-            .thenReturn(User(newUserId, encodedPassword))
 
-        val user = userService.join(newUserId, newUserPassword)
+        Mockito.`when`(userRepository.save(argumentCaptor.capture()))
+            .thenReturn(User(testId, testPassword).apply{ prePersist() })
 
-        assertEquals(user.id, newUserId)
-        assert(bCryptPasswordEncoder.matches(newUserPassword, user.password))
-        assertEquals(user.role, "USER")
-        assertEquals(user.banned, false)
-        assertEquals(user.quit, false)
-        assertEquals(user.warnCnt, 0)
-        assert(user.joinAt?.isAfter(time) ?: false)
+        val res = userService.join(testId, testPassword)
+        assertEquals(testId, res.id)
+        assertTrue(bCryptPasswordEncoder.matches(testPassword, argumentCaptor.value.password))
+        assertEquals("USER", res.role)
+        assertEquals(false, res.isBanned)
+        assertEquals(false, res.isDeleted)
+        assertEquals(0, res.warnCnt)
+        assertTrue(testStartTime.isBefore(res.joinAt))
     }
 
     @Test
-    @DisplayName("입력으로 들어온 ID를 가진 유저가 이미 존재 할 경우 실패함")
-    fun joinFailureDuplication() {
-        val newUserId = "testUser"
-        val newUserPassword = "testPassword"
+    @DisplayName("이미 존재하는 ID일 경우 에러 발생")
+    fun duplicationTest() {
+        whenever(userRepository.existsById(any<String>())).thenReturn(true)
 
-        Mockito.`when`(userRepository.existsById(newUserId))
-            .thenReturn(true)
-
-        val exception = assertThrows(AppException::class.java) {
-            userService.join(newUserId, newUserPassword)
+        val exception = assertThrows<AppException>{
+            userService.join(testId, testPassword)
         }
 
-        assertEquals(exception.message, "user id '$newUserId' is already used")
-        assertEquals(exception.errorCode, ErrorCode.DUPLICATE_USER_ID)
+        assertEquals("user id '${testId}' is already used", exception.message)
+        assertEquals(ErrorCode.DUPLICATE_USER_ID, exception.errorCode)
     }
 }
