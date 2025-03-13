@@ -3,8 +3,8 @@ POST http://localhost:8080/user/join
 Content-Type: application/json
 
 {
-  "id": "newUser1",
-  "password": "helloworld"
+  "id": "testing2",
+  "password": "nwc36579"
 }
 
 ### ERROR 필수 필드 누락
@@ -14,3 +14,15 @@ Content-Type: application/json
 {
   "id": "newUser1"
 }
+
+
+### 유저 로그인
+
+POST http://localhost:8080/login
+Content-Type: application/x-www-form-urlencoded
+
+username=testing2&password=nwc36579
+
+### test
+
+GET http://localhost:8080/admin
