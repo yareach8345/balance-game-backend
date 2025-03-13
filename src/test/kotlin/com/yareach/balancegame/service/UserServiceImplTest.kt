@@ -1,7 +1,6 @@
 package com.yareach.balancegame.service
 
-import com.yareach.balancegame.dto.toUserDto
-import com.yareach.balancegame.entity.User
+import com.yareach.balancegame.entity.UserEntity
 import com.yareach.balancegame.exception.AppException
 import com.yareach.balancegame.exception.ErrorCode
 import com.yareach.balancegame.repository.UserRepository
@@ -40,13 +39,13 @@ class UserServiceImplTest{
     @DisplayName("새로운 유저가 추가 됨")
     fun addUser() {
         val testStartTime = LocalDateTime.now()
-        val argumentCaptor = ArgumentCaptor.forClass(User::class.java)
+        val argumentCaptor = ArgumentCaptor.forClass(UserEntity::class.java)
 
         Mockito.`when`(userRepository.existsById(testId))
             .thenReturn(false)
 
         Mockito.`when`(userRepository.save(argumentCaptor.capture()))
-            .thenReturn(User(testId, testPassword).apply{ prePersist() })
+            .thenReturn(UserEntity(testId, testPassword).apply{ prePersist() })
 
         val res = userService.join(testId, testPassword)
         assertEquals(testId, res.id)

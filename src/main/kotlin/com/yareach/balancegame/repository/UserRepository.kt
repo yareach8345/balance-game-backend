@@ -1,6 +1,6 @@
 package com.yareach.balancegame.repository
 
-import com.yareach.balancegame.entity.User
+import com.yareach.balancegame.entity.UserEntity
 import org.springframework.data.repository.CrudRepository
 
-interface UserRepository: CrudRepository<User, String> {}
+interface UserRepository: CrudRepository<UserEntity, String> {}

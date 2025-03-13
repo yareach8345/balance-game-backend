@@ -2,14 +2,13 @@ package com.yareach.balancegame.entity
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
-import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.DynamicInsert
 import java.time.LocalDateTime
 
 @Entity
 @DynamicInsert
 @Table(name = "users")
-class User (
+class UserEntity (
     @Id
     @Column(name = "user_id")
     var id: String,

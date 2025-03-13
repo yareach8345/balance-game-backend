@@ -1,7 +1,6 @@
 package com.yareach.balancegame.service
 
-import com.yareach.balancegame.dto.toUserDto
-import com.yareach.balancegame.entity.User
+import com.yareach.balancegame.entity.UserEntity
 import com.yareach.balancegame.exception.AppException
 import com.yareach.balancegame.exception.ErrorCode
 import com.yareach.balancegame.repository.UserRepository
@@ -13,12 +12,12 @@ final class UserServiceImpl(
     private val userRepository: UserRepository,
     private val bCryptPasswordEncoder: BCryptPasswordEncoder
 ): UserService {
-    override fun join(userId: String, password: String): User {
+    override fun join(userId: String, password: String): UserEntity {
         val isAlreadyExist = userRepository.existsById(userId)
         if(isAlreadyExist) {
             throw AppException(ErrorCode.DUPLICATE_USER_ID, "user id '$userId' is already used")
         }
-        val newUser = User(userId, bCryptPasswordEncoder.encode(password))
+        val newUser = UserEntity(userId, bCryptPasswordEncoder.encode(password))
         return userRepository.save(newUser)
     }
 }

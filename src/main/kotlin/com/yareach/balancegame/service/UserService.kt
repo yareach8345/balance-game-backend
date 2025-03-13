@@ -1,7 +1,7 @@
 package com.yareach.balancegame.service
 
-import com.yareach.balancegame.entity.User
+import com.yareach.balancegame.entity.UserEntity
 
 interface UserService {
-    fun join(userId: String, password: String): User
+    fun join(userId: String, password: String): UserEntity
 }
