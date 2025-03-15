@@ -13,8 +13,10 @@ import org.mockito.*
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
+import java.util.*
 
 @SpringBootTest
 class UserServiceImplTest{
@@ -27,11 +29,12 @@ class UserServiceImplTest{
     @Spy
     private lateinit var bCryptPasswordEncoder: BCryptPasswordEncoder
 
-    val testId = "test user id"
-    val testPassword = "test password"
+    private final val testId = "test user id"
+    private final val testPassword = "test password"
 
     @BeforeEach
     fun setUp() {
+        Mockito.reset(userRepository)
         userService = UserServiceImpl(userRepository, bCryptPasswordEncoder)
     }
 
@@ -40,12 +43,10 @@ class UserServiceImplTest{
     fun addUser() {
         val testStartTime = LocalDateTime.now()
         val argumentCaptor = ArgumentCaptor.forClass(UserEntity::class.java)
+        val testUserEntity = UserEntity(testId, testPassword)
 
-        Mockito.`when`(userRepository.existsById(testId))
-            .thenReturn(false)
-
-        Mockito.`when`(userRepository.save(argumentCaptor.capture()))
-            .thenReturn(UserEntity(testId, testPassword).apply{ prePersist() })
+        whenever(userRepository.existsById(any())).thenReturn(false)
+        whenever(userRepository.save(argumentCaptor.capture())).thenReturn(testUserEntity.apply { prePersist() })
 
         val res = userService.join(testId, testPassword)
         assertEquals(testId, res.id)
@@ -68,5 +69,32 @@ class UserServiceImplTest{
 
         assertEquals("user id '${testId}' is already used", exception.message)
         assertEquals(ErrorCode.DUPLICATE_USER_ID, exception.errorCode)
+    }
+
+    @Test
+    @DisplayName("이미 존재하는 유저를 성공적으로 불러옴")
+    fun getUserTest() {
+        val captor = ArgumentCaptor.forClass(String::class.java)
+        val oldUser = UserEntity(testId, testPassword, joinAt = LocalDateTime.of(2025, 3, 14, 11, 0,0, 24))
+
+        whenever(userRepository.findById(captor.capture())).thenReturn(Optional.of(oldUser))
+
+        val userDto = userService.getUser(testId)
+
+        assertEquals(testId, captor.value)
+        assertEquals(testId, userDto.id)
+    }
+
+    @Test
+    @DisplayName("없는 유저의 ID로 조회할 시 조회에 실패함")
+    fun userWhoHaveTheseIdIsNotExists() {
+        whenever(userRepository.findById(any())).thenReturn(Optional.empty())
+
+        val exception = assertThrows<AppException>{
+            userService.getUser(testId)
+        }
+
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.errorCode)
+        assertEquals("user id '${testId}' does not exist", exception.message)
     }
 }

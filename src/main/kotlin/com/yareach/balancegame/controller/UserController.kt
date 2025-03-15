@@ -22,6 +22,6 @@ class UserController(
         val user = userService.join(userId, password)
         return ResponseEntity
             .created(URI.create("/user/${userId}"))
-            .body(successResponse(user.toUserDto()))
+            .body(successResponse(user))
     }
 }
