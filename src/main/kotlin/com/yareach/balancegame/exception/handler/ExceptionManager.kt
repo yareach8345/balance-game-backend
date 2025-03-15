@@ -1,7 +1,5 @@
 package com.yareach.balancegame.exception.handler
 
-import com.yareach.balancegame.dto.Response
-import com.yareach.balancegame.dto.errorResponse
 import com.yareach.balancegame.exception.AppException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,7 +14,7 @@ class ExceptionManager {
     }
 
     @ExceptionHandler(AppException::class)
-    fun handleAppException(e: AppException): ResponseEntity<Response<Nothing>> {
-        return ResponseEntity.status(e.errorCode.status).body(errorResponse(e.errorCode.name))
+    fun handleAppException(e: AppException): ResponseEntity<String> {
+        return ResponseEntity.status(e.errorCode.status).body(e.errorCode.message)
     }
 }
