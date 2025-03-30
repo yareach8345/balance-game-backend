@@ -25,9 +25,6 @@ final class UserServiceImpl(
     }
 
     override fun getUser(userId: String): UserDto {
-        println("????????????????/")
-        println(userId)
-        println(userRepository.findByIdOrNull(userId))
         val user = userRepository.findByIdOrNull(userId)
             ?: throw AppException(ErrorCode.USER_NOT_FOUND, "user id '$userId' does not exist")
         return user.toUserDto()
