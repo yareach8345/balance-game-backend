@@ -3,7 +3,7 @@ package com.yareach.balancegame.dto
 import com.yareach.balancegame.entity.UserEntity
 import java.time.LocalDateTime
 
-data class UserDto(
+data class UserInfoDto(
     val id: String,
     val role: String,
     val isBanned: Boolean,
@@ -12,4 +12,4 @@ data class UserDto(
     val joinAt: LocalDateTime?
 )
 
-fun UserEntity.toUserDto(): UserDto = UserDto( id, role, isBanned, isDeleted, warnCnt, joinAt)
+fun UserEntity.toUserDto(): UserInfoDto = UserInfoDto( id, role, isBanned, isDeleted, warnCnt, joinAt)

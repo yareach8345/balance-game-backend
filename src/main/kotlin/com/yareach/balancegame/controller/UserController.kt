@@ -13,9 +13,9 @@ class UserController(
     val userService: UserService
 ) {
     @PostMapping("/join")
-    fun join(@RequestBody @Valid joinDto: JoinDto): ResponseEntity<UserDto> {
-        val userId = joinDto.id!!
-        val password = joinDto.password!!
+    fun join(@RequestBody @Valid joinRequestDto: JoinRequestDto): ResponseEntity<UserDto> {
+        val userId = joinRequestDto.id!!
+        val password = joinRequestDto.password!!
         val user = userService.join(userId, password)
         return ResponseEntity
             .created(URI.create("/user/${userId}"))

@@ -2,7 +2,7 @@ package com.yareach.balancegame.dto
 
 import jakarta.validation.constraints.NotBlank
 
-data class JoinDto (
+data class JoinRequestDto (
     @field:NotBlank(message = "id는 필수 입력 값입니다.")
     val id: String?,
 

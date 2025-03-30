@@ -5,7 +5,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
-class CustomUserDetails(
+class CustomUserDetailsDto(
     val userEntity: UserEntity
 ) : UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
